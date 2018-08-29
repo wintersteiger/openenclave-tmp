@@ -4,7 +4,8 @@
 #ifndef _ARGS_H_
 #define _ARGS_H_
 
-struct test_cert_chain_args_t {
+struct test_cert_chain_args_t
+{
     const char* root;
     const char* intermediate;
     const char* leaf;

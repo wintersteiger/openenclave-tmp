@@ -3,15 +3,14 @@
 
 #include <openenclave/internal/cert.h>
 #include <openenclave/internal/tests.h>
-#include <string>
 #include <stdio.h>
+#include <string>
 
-oe_result_t create_chain(
+oe_result_t create_and_read_chain(
     const char* c1,
     const char* c2,
     const char* c3,
-    oe_cert_chain_t* chain
-)
+    oe_cert_chain_t* chain)
 {
     std::string s = "";
     if (c1)
@@ -23,8 +22,9 @@ oe_result_t create_chain(
 
     oe_cert_chain_free(chain);
     // size + 1 to include null character.
-    oe_result_t result =  oe_cert_chain_read_pem(chain, &s[0], s.size()+1);
-    if (result != OE_OK) {
+    oe_result_t result = oe_cert_chain_read_pem(chain, &s[0], s.size() + 1);
+    if (result != OE_OK)
+    {
         printf("create_chain result = %s\n", oe_result_str(result));
         fflush(stdout);
     }
@@ -34,19 +34,18 @@ oe_result_t create_chain(
 void test_cert_chain(
     const char* root,
     const char* intermediate,
-    const char* leaf
-)
+    const char* leaf)
 {
     oe_cert_chain_t chain = {0};
 
     // Create root, intermediate, leaf chain.
     // The following passes in host, but fails in enclave.
-    OE_TEST(create_chain(root, intermediate, leaf, &chain) == OE_OK);    
+    OE_TEST(create_and_read_chain(root, intermediate, leaf, &chain) == OE_OK);
 
-    // The following should fail since the order of certs is different. 
+    // The following should fail since the order of certs is different.
     // But passes in host.
-    OE_TEST(create_chain(leaf, intermediate, root, &chain) == OE_OK);
-    OE_TEST(create_chain(intermediate, root, leaf, &chain) == OE_OK);
+    OE_TEST(create_and_read_chain(leaf, intermediate, root, &chain) == OE_OK);
+    OE_TEST(create_and_read_chain(intermediate, root, leaf, &chain) == OE_OK);
 
     oe_cert_chain_free(&chain);
 }

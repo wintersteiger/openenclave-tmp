@@ -4,9 +4,9 @@
 #include <openenclave/host.h>
 #include <openenclave/internal/error.h>
 #include <openenclave/internal/tests.h>
+#include <fstream>
 #include <string>
 #include <vector>
-#include <fstream>
 #include "../common/args.h"
 #include "../common/tests.cpp"
 
@@ -51,14 +51,14 @@ int main(int argc, const char* argv[])
     auto leaf1 = read_file("./data/RootCA1.crt.pem");
     {
         test_cert_chain_args_t args = {
-           .root = (char*)&root_ca1[0],
-           .intermediate = (char*)&intermediate_ca1[0],
-           .leaf = (char*)&leaf1[0]
-        };
+            .root = (char*)&root_ca1[0],
+            .intermediate = (char*)&intermediate_ca1[0],
+            .leaf = (char*)&leaf1[0]};
         test_cert_chain(args.root, args.intermediate, args.leaf);
-        OE_TEST(oe_call_enclave(enclave, "ecall_test_cert_chain", &args) == OE_OK);
+        OE_TEST(
+            oe_call_enclave(enclave, "ecall_test_cert_chain", &args) == OE_OK);
     }
-   
+
     /* Terminate the enclave */
     if ((result = oe_terminate_enclave(enclave)) != OE_OK)
     {
