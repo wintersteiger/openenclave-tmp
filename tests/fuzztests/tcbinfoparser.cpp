@@ -25,60 +25,51 @@ std::vector<uint8_t> FileToBytes(const char* path)
     bytes.push_back('\0');
     return bytes;
 }
-
+const char* plattcblevel_status_str(int status)
+{
+    switch (status)
+    {
+        case OE_TCB_LEVEL_STATUS_UNKNOWN:
+            return "OE_TCB_LEVEL_STATUS_UNKNOWN";
+        case OE_TCB_LEVEL_STATUS_REVOKED:
+            return "OE_TCB_LEVEL_STATUS_REVOKED";
+        case OE_TCB_LEVEL_STATUS_OUT_OF_DATE:
+            return "OE_TCB_LEVEL_STATUS_OUT_OF_DATE";
+        case OE_TCB_LEVEL_STATUS_UP_TO_DATE:
+            return "OE_TCB_LEVEL_STATUS_UP_TO_DATE";
+        case __OE_TCB_LEVEL_MAX:
+            break;
+    }
+    return "UNKNOWN";
+}
 int main(int argc, char** argv)
 {
     oe_result_t result;
-    DIR* dir;
-    struct dirent* entry;
     std::vector<uint8_t> tcbInfo;
     oe_parsed_tcb_info_t parsedInfo;
     oe_tcb_level_t platformTcbLevel = {
         {4, 4, 2, 4, 1, 128, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         8,
         OE_TCB_LEVEL_STATUS_UNKNOWN};
-    char buf[1024];
     if (argc != 2)
     {
         fprintf(
             stderr, "Usage: %s << Path to the respective file >> \n", argv[0]);
         exit(1);
     }
-    static int count = 0;
-    if ((dir = opendir(argv[1])) != NULL)
-    {
-        while ((entry = readdir(dir)) != NULL)
-        {
-            count++;
-            if ((strcmp(entry->d_name, ".") == 0) ||
-                (strcmp(entry->d_name, "..") == 0))
-                continue;
-            if (strstr(entry->d_name, "json") == NULL)
-            {
-                continue;
-            }
-            sprintf(buf, "%s/%s", argv[1], entry->d_name);
-            tcbInfo = FileToBytes(buf);
-            memset((void*)&parsedInfo, '\0', sizeof(oe_parsed_tcb_info_t));
-            platformTcbLevel.status = OE_TCB_LEVEL_STATUS_UNKNOWN;
 
-            result = oe_parse_tcb_info_json(
-                (uint8_t*)&tcbInfo[0],
-                (uint32_t)tcbInfo.size(),
-                &platformTcbLevel,
-                &parsedInfo);
-            printf(
-                "\nplatformTcbLevel.status =%d return= %d for %s\n",
-                platformTcbLevel.status,
-                result,
-                entry->d_name);
-        }
-        closedir(dir);
-    }
-    else
-    {
-        /* cannot open the directory */
-        assert("INVALID_PATH == TRUE");
-    }
+    tcbInfo = FileToBytes(argv[1]);
+
+    result = oe_parse_tcb_info_json(
+        (uint8_t*)&tcbInfo[0],
+        (uint32_t)tcbInfo.size(),
+        &platformTcbLevel,
+        &parsedInfo);
+
+    printf(
+        "\n Json file Platform TCB LEVEL status = %s\n oe_parse_tcb_info_json "
+        "return = %s\n",
+        plattcblevel_status_str(platformTcbLevel.status),
+        oe_result_str(result));
     return 0;
 }
