@@ -100,9 +100,8 @@ OE_ECALL void Test(Args* args)
                      "../../3rdparty/mbedtls/mbedtls/programs/test/selftest.c"))
         {
             // selftest treats the verbose flag "-v" as an invalid test suite
-            // name,
-            // so drop all args when invoking the test, which will execute all
-            // selftests
+            // name, so drop all args when invoking the test, which will execute
+            // all selftests
             static const char* noargs[2] = {NULL};
             args->ret = main(1, noargs);
         }
