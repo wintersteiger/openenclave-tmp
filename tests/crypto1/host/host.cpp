@@ -21,7 +21,7 @@ std::vector<uint8_t> read_file(const char* path)
         printf("File %s not found\n", path);
         exit(1);
     }
-
+    bytes.push_back('\0');
     return bytes;
 }
 
@@ -48,7 +48,7 @@ int main(int argc, const char* argv[])
 
     auto root_ca1 = read_file("./data/RootCA1.crt.pem");
     auto intermediate_ca1 = read_file("./data/IntermediateCA1.crt.pem");
-    auto leaf1 = read_file("./data/Leaf2.crt.pem");
+    auto leaf1 = read_file("./data/Leaf1.crt.pem");
     {
         test_cert_chain_args_t args = {
             .root = (char*)&root_ca1[0],

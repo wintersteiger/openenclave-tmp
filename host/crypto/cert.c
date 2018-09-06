@@ -362,8 +362,6 @@ static oe_result_t _VerifyWholeChain(STACK_OF(X509) * chain)
     X509* root;
     STACK_OF(X509)* subchain = NULL;
     int n;
-    printf("Here\n");
-    fflush(stdout);
 
     if (!chain)
         OE_RAISE(OE_INVALID_PARAMETER);
@@ -520,18 +518,14 @@ oe_result_t oe_cert_chain_read_pem(
     /* Must have pemSize-1 non-zero characters followed by zero-terminator */
     if (strnlen((const char*)pemData, pemSize) != pemSize - 1)
         OE_RAISE(OE_INVALID_PARAMETER);
-    printf("Here read\n");
-    fflush(stdout);
+
     /* Initialize OpenSSL (if not already initialized) */
     oe_initialize_openssl();
 
-    printf("Here read2\n");
-    fflush(stdout);
     /* Read the certificate chain into memory */
     if (!(sk = _ReadCertChain((const char*)pemData)))
         OE_RAISE(OE_FAILURE);
-    printf("Here read3\n");
-    fflush(stdout);
+
     /* Verify the whole certificate chain */
     OE_CHECK(_VerifyWholeChain(sk));
 

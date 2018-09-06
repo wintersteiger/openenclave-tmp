@@ -9,3 +9,11 @@ OE_ECALL void ecall_test_cert_chain(void* args_)
     test_cert_chain_args_t* args = (test_cert_chain_args_t*)args_;
     test_cert_chain(args->root, args->intermediate, args->leaf);
 }
+
+OE_SET_ENCLAVE_SGX(
+    1,    /* ProductID */
+    1,    /* SecurityVersion */
+    true, /* AllowDebug */
+    1024, /* HeapPageCount */
+    1024, /* StackPageCount */
+    2);   /* TCSCount */

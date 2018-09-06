@@ -160,6 +160,7 @@ oe_result_t oe_enforce_revocation(
     char* intermediate_crl_url = NULL;
     char* leaf_crl_url = NULL;
     oe_crl_t crls[2] = {{{0}}};
+    oe_crl_t crl = {0};
     oe_datetime_t crl_this_update_date = {0};
     oe_datetime_t crl_next_update_date = {0};
 
@@ -208,10 +209,19 @@ oe_result_t oe_enforce_revocation(
                 revocation_args.crl_issuer_chain_size[i]));
     }
 
+    {
+        OE_CHECK(
+            oe_crl_read_der(
+                &crl, revocation_args.crl[1], revocation_args.crl_size[1]));
+        OE_CHECK(
+            oe_crl_read_der(
+                &crl, revocation_args.crl[0], revocation_args.crl_size[0]));
+    }
+
     // Verify leaf and intermediate certs againt the CRL.
     OE_CHECK(
         oe_cert_verify(
-            leaf_cert, &crl_issuer_chain[0], &crls[0], &cert_verify_error));
+            leaf_cert, &crl_issuer_chain[0], &crl, &cert_verify_error));
 
     OE_CHECK(
         oe_cert_verify(
@@ -288,6 +298,7 @@ done:
     free(leaf_crl_url);
     free(intermediate_crl_url);
     oe_cleanup_get_revocation_info_args(&revocation_args);
+    oe_crl_free(&crl);
 
     return result;
 }

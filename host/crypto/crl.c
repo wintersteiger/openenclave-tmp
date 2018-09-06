@@ -43,10 +43,6 @@ oe_result_t oe_crl_read_der(
     BIO* bio = NULL;
     X509_CRL* x509_crl = NULL;
 
-    /* Clear the implementation */
-    if (impl)
-        memset(impl, 0, sizeof(crl_t));
-
     /* Check for invalid parameters */
     if (!der_data || !der_size || !crl)
         OE_RAISE(OE_UNEXPECTED);
@@ -55,9 +51,23 @@ oe_result_t oe_crl_read_der(
     if (!(bio = BIO_new_mem_buf(der_data, der_size)))
         goto done;
 
-    /* Read BIO into X509_CRL object */
-    if (!(x509_crl = d2i_X509_CRL_bio(bio, NULL)))
-        goto done;
+    if (!crl_is_valid(impl))
+    {
+        /* Clear the implementation */
+        if (impl)
+            memset(impl, 0, sizeof(crl_t));
+
+        /* Read BIO into X509_CRL object */
+        if (!(x509_crl = d2i_X509_CRL_bio(bio, NULL)))
+            goto done;
+    }
+    else
+    {
+        x509_crl = impl->crl;
+        if (!(x509_crl = d2i_X509_CRL_bio(bio, &x509_crl)))
+            goto done;
+        printf("????????????????????????????????????Host here\n\n");
+    }
 
     /* Initialize the implementation */
     _crl_init(impl, x509_crl);
