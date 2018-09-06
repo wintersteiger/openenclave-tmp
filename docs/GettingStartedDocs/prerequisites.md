@@ -1,12 +1,53 @@
-Obtain the source distribution
-=================================
+
+# Install Prerequisites
+
+## Install Prerequisites
+======================
+
+ To build the Open Enclave SDK from its source code successfully, you need to install the following 
+ packages
+
+   | Packages                          |  depending component|
+   |:----------------------------------|:-----------------------------------:|
+   | clang-format cmake gcc g++ make   | Needed for Open Enclave build and scripts|
+   | gdb                               | Needed for using oedbg                   |
+   | autoconf libtool                  | Needed for 3rdparty/libunwind               |
+   | doxygen graphviz                  | Needed to generate documentation during make |
+   | gawk                              | Needed for cmake/get_c_compiler_dir.sh |
+   | libexpat1-dev                     | Needed for dox2md document generation |
+   | openssl                           | Needed for oesign |
+   | libssl-dev                        | Needed for oehost |
+   | subversion                        | Needed for 3rdparty/libcxx/update.make |
+   | dh-exec                           | Debian execution helper|
+   | libcurl3                          | client-side URL transfers library|
+
+  See [/scripts/install-prereqs](/scripts/install-prereqs) script for a up-to-date list
+
+For application developers: install the following basic runtime prerequisites
+
+     $sudo apt-get clang-format cmake autoconf libtool doxygen graphviz gawk libexpat1-dev openssl subversion
+
+For advanced developers: other than above basic runtime prerequisites, install the following dev environment prerequisites
+
+    $sudo apt-get install make gcc g++ gdb libmbedtls10 libssl-dev dh-exec libcurl3
+
+
+The "install-prereqs" script was created to make installing the prerequisites less tedious.
+Execute the following commands from the root of the source tree to install above prerequisites for you
+```
+$ cd openenclave
+$ sudo ./scripts/install-prereqs
+```
+
+## Obtain the source distribution
+
 Open Enclave is available from GitHub. Use the following command to download the source distribution.
 
-    # git clone https://github.com/Microsoft/openenclave
+    $ git clone https://github.com/Microsoft/openenclave
 This creates a source tree under the directory called openenclave.
 
-Source tree layout
-------------------
+### Source tree layout
+
 The files and directories in the top-level directory are described as follows.
 
 - [LICENSE](LICENSE) - The Open Enclave license
@@ -14,7 +55,7 @@ The files and directories in the top-level directory are described as follows.
 - [3rdparty](3rdparty) - Contains third-party software packages
 - [cmake](cmake) - Contains CMake scripts for building Open Enclave.
 - [common](common) - Contains sources that work in the enclave and the host
-- [docs](docs) - Contains documentation
+- [doc](doc) - Contains documentation
 - [core](core) - Contains the source for the oecore library
 - [enclave](enclave) - Contains the source for the oeenclave library
 - [host](host) - Contains source for the oehost library
@@ -28,19 +69,4 @@ The files and directories in the top-level directory are described as follows.
 - [tests](tests) - Contains all test programs, which may also serve as samples
 - [tools](tools) - Contains command-line tools (oesgx, oesign, oegen)
 
-Install Prerequisites
-======================
-The following are prerequisites for building and running Open Enclave.
 
-- Ubuntu Desktop-16.04-LTS 64bits
-- Various packages: build-essential, ocaml, automake, autoconf, libtool, wget, python, 
-                    libssl-dev, libcurl4-openssl-dev, protobuf-compiler, libprotobuf-dev, 
-                    build-essential, python, libssl-dev, libcurl4-openssl-dev, libprotobuf-dev, 
-                    uuid-dev, libxml2-dev, cmake, pkg-config
-
-Execute the following commands from the root of the source tree to install above prerequisites for you
-
-```
-$ cd openenclave
-$ sudo ./scripts/install-prereqs
-```

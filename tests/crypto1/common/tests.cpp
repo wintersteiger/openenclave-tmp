@@ -12,7 +12,7 @@ oe_result_t create_and_read_chain(
     oe_cert_chain_t* chain)
 {
     std::string s = "";
-    for(size_t i=0; i < certs.size(); ++i)
+    for (size_t i = 0; i < certs.size(); ++i)
     {
         if (certs[i])
             s += certs[i];
@@ -33,21 +33,44 @@ void test_cert_chain(
 
     // The following order should work.
     // But it is inverse of open ssl order.
-    OE_TEST(create_and_read_chain(std::vector<const char*>{leaf, intermediate, root}, &chain) == OE_OK);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{leaf, intermediate, root}, &chain) ==
+        OE_OK);
 
-    OE_TEST(create_and_read_chain(std::vector<const char*>{leaf, NULL, root}, &chain) == OE_FAILURE);
-    OE_TEST(create_and_read_chain(std::vector<const char*>{leaf, intermediate, leaf, intermediate, root}, &chain) == OE_OK);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{leaf, NULL, root}, &chain) == OE_FAILURE);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{
+                leaf, intermediate, leaf, intermediate, root},
+            &chain) == OE_OK);
 
-    OE_TEST(create_and_read_chain(std::vector<const char*>{intermediate, root}, &chain) == OE_OK);
-    OE_TEST(create_and_read_chain(std::vector<const char*>{intermediate, leaf, root}, &chain) == OE_FAILURE);
-    OE_TEST(create_and_read_chain(std::vector<const char*>{intermediate, leaf, intermediate, root}, &chain) == OE_OK);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{intermediate, root}, &chain) == OE_OK);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{intermediate, leaf, root}, &chain) ==
+        OE_FAILURE);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{intermediate, leaf, intermediate, root},
+            &chain) == OE_OK);
 
-    OE_TEST(create_and_read_chain(std::vector<const char*>{root, intermediate, leaf}, &chain) == OE_FAILURE);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{root, intermediate, leaf}, &chain) ==
+        OE_FAILURE);
 
     // The following should fail since the order of certs is different.
     // But passes in host.
 
-    OE_TEST(create_and_read_chain(std::vector<const char*>{intermediate, root, leaf}, &chain) == OE_FAILURE);
+    OE_TEST(
+        create_and_read_chain(
+            std::vector<const char*>{intermediate, root, leaf}, &chain) ==
+        OE_FAILURE);
 
     oe_cert_chain_free(&chain);
 }
