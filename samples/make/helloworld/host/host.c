@@ -9,6 +9,23 @@ OE_OCALL void host_hello(void* args_)
     fprintf(stdout, "Enclave called into host to print: Hello World!\n");
 }
 
+uint32_t create_flags(void)
+{
+    uint32_t flags = OE_ENCLAVE_FLAG_DEBUG;
+    char* env = NULL;
+
+    // If OE_SIMULATION, is set to 1, the enclave will be created in simulation mode.
+    // This enables samples to run in simulation mode.
+    if (!(env = getenv("OE_SIMULATION")))
+        goto done;
+
+    if (strcmp(env, "1") == 0)
+        flags |= OE_ENCLAVE_FLAG_SIMULATE;
+
+done:
+    return flags;
+}
+
 int main(int argc, const char* argv[])
 {
     oe_result_t result;
@@ -22,7 +39,7 @@ int main(int argc, const char* argv[])
     }
 
     result = oe_create_enclave(
-        argv[1], OE_ENCLAVE_TYPE_SGX, OE_ENCLAVE_FLAG_DEBUG, NULL, 0, &enclave);
+        argv[1], OE_ENCLAVE_TYPE_SGX, create_flags(), NULL, 0, &enclave);
     if (result != OE_OK)
     {
         fprintf(stderr, "oe_create_enclave(): result=%u", result);
