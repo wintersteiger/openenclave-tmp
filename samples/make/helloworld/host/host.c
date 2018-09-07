@@ -18,18 +18,23 @@ int main(int argc, const char* argv[])
 
     if (argc == 3)
     {
-       //We provide a path to run in sumulation mode via the --simulate argument
-       if(strcmp(argv[2], "--simulate"))
-       {
-           fprintf(stderr, "Usage: %s enclave_image_path [ --simulate  ]\n", argv[0]);
-           goto exit;
-       }
-       flags |= OE_ENCLAVE_FLAG_SIMULATE;
+        // We provide a path to run in sumulation mode via the --simulate
+        // argument
+        if (strcmp(argv[2], "--simulate"))
+        {
+            fprintf(
+                stderr,
+                "Usage: %s enclave_image_path [ --simulate  ]\n",
+                argv[0]);
+            goto exit;
+        }
+        flags |= OE_ENCLAVE_FLAG_SIMULATE;
     }
     else if (argc != 2)
     {
-       fprintf(stderr, "Usage: %s enclave_image_path [ --simulate  ]\n", argv[0]);
-       goto exit;
+        fprintf(
+            stderr, "Usage: %s enclave_image_path [ --simulate  ]\n", argv[0]);
+        goto exit;
     }
 
     result = oe_create_enclave(
