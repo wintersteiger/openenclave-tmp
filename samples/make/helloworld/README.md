@@ -304,6 +304,7 @@ The listing from [helloworld/host/host.c](/samples/make/helloworld/enc/Makefile)
      Enclave called into host to print: Hello World!
          
   To run the helloworld sample simulation mode from the command like, use the following:
+
      ~/samples/helloworld$ host/helloworldhost ./enc/helloworldenc.signed.so --simulate
      Enclave called into host to print: Hello World!
   
