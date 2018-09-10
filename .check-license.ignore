@@ -36,7 +36,7 @@ LICENSE
 ./prereqs/aesm/.sdk
 ./prereqs/aesm/.sdk_installer
 ./prereqs/isgx/linux-sgx-driver
-./prereqs/ngsa/libsgx
+./prereqs/dcap/libsgx
 ./prereqs/sgx-driver/sgx-driver
 ./samples/make/remote_attestation/images/attestationsample.png
 ./samples/make/remote_attestation/images/localattestation.png

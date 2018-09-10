@@ -4,12 +4,14 @@
 PACKAGE_VER=1.0.101.45575-1.0_amd64
 
 PACKAGE_NAMES=\
-	libsgx-enclave-common\
-	libsgx-enclave-common-dev\
-	libsgx-ngsa-ql\
-	libsgx-ngsa-ql-dev\
+       libsgx-enclave-common\
+       libsgx-dcap-ql\
+       libsgx-dcap-ql-dev\
 
-PACKAGES=$(foreach NAME,$(PACKAGE_NAMES),$(call pkg-name,$(NAME),$(PACKAGE_VER)))
+PACKAGES=\
+	libsgx-enclave-common_2.3.100.46224-1_amd64.deb\
+	libsgx-dcap-ql_1.0.100.46226-1.0_amd64.deb\
+	libsgx-dcap-ql-dev_1.0.100.46226-1.0_amd64.deb
 
 UNINSTALL_NAMES=$(call reverse-list,$(PACKAGE_NAMES))
 
