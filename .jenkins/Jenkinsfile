@@ -98,11 +98,9 @@ pipeline {
             }
 
           }
-          script {
-            try {
+          steps {
             sh 'bash ./scripts/test-build-config -p SGX1 -b Release -d --compiler=clang-7'
-            } finally {
-            }
+            currentBuild.result = 'SUCCESS'
           }
         }
         stage('Kabylake clang-7 SGX1 RelWithDebInfo') {
@@ -112,11 +110,9 @@ pipeline {
             }
 
           }
-          script {
-            try {
+          steps {
             sh 'bash ./scripts/test-build-config -p SGX1 -b RelWithDebInfo -d --compiler=clang-7'
-            } finally {
-            }
+            currentBuild.result = 'SUCCESS'
           }
         }
         stage('Coffeelake clang-7 SGX1-FLC Debug') {
