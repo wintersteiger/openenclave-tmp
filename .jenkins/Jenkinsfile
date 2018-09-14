@@ -91,6 +91,7 @@ pipeline {
             sh 'bash ./scripts/test-build-config -p SGX1 -b Debug -d --compiler=clang-7'
           }
         }
+        try {
         stage('Kabylake clang-7 SGX1 Release') {
           agent {
             node {
@@ -99,13 +100,13 @@ pipeline {
 
           }
           steps {
-            try {
-              sh 'bash ./scripts/test-build-config -p SGX1 -b Release -d --compiler=clang-7'
-            } catch (err) {
-              print err
-            }
+            sh 'bash ./scripts/test-build-config -p SGX1 -b Release -d --compiler=clang-7'
           }
         }
+        } catch (Exception ex) {
+
+        }
+        try {
         stage('Kabylake clang-7 SGX1 RelWithDebInfo') {
           agent {
             node {
@@ -114,12 +115,11 @@ pipeline {
 
           }
           steps {
-            try {
-              sh 'bash ./scripts/test-build-config -p SGX1 -b RelWithDebInfo -d --compiler=clang-7'
-            } catch (err) {
-              print err
-            }
+            sh 'bash ./scripts/test-build-config -p SGX1 -b RelWithDebInfo -d --compiler=clang-7'
           }
+        }
+        } catch (Exception ex) {
+
         }
         stage('Coffeelake clang-7 SGX1-FLC Debug') {
           agent {
