@@ -41,7 +41,8 @@ static void _InitializeExceptionHandling(void)
     if (_lib_crypto == NULL)
     {
         _lib_crypto = dlopen("libcrypto.so.1.0.0", RTLD_LAZY | RTLD_LOCAL);
-        printf("libcrypto %s.\n", _lib_crypto ? "loaded" : "load failed");
+        //        printf("libcrypto %s.\n", _lib_crypto ? "loaded" : "load
+        //        failed");
     }
 }
 
