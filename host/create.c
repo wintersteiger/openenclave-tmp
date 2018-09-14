@@ -12,6 +12,7 @@
 #endif
 
 #include <assert.h>
+#include <dlfcn.h>
 #include <openenclave/bits/defs.h>
 #include <openenclave/bits/safemath.h>
 #include <openenclave/host.h>
@@ -31,13 +32,17 @@
 #include "enclave.h"
 #include "memalign.h"
 #include "sgxload.h"
-#include "sgxquoteprovider.h"
 
 static oe_once_type _enclave_init_once = OE_H_ONCE_INITIALIZER;
-
+static void* _lib_crypto = NULL;
 static void _InitializeExceptionHandling(void)
 {
     _oe_initialize_host_exception();
+    if (_lib_crypto == NULL)
+    {
+        _lib_crypto = dlopen("libcrypto.so.1.0.0", RTLD_LAZY | RTLD_LOCAL);
+        printf("libcrypto %s.\n", _lib_crypto ? "loaded" : "load failed");
+    }
 }
 
 /*
@@ -1407,9 +1412,6 @@ oe_result_t oe_create_enclave(
     oe_sgx_load_context_t context;
 
     _InitializeEnclaveHost();
-
-    // Experimental
-    oe_initialize_quote_provider();
 
     if (enclaveOut)
         *enclaveOut = NULL;
