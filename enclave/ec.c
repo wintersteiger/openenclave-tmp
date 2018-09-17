@@ -5,6 +5,7 @@
 #include <mbedtls/asn1.h>
 #include <mbedtls/asn1write.h>
 #include <mbedtls/ecp.h>
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/enclavelibc.h>
 #include <openenclave/internal/raise.h>
@@ -460,7 +461,7 @@ oe_result_t oe_ecdsa_signature_write_der(
         OE_RAISE(OE_BUFFER_TOO_SMALL);
     }
 
-    oe_memcpy(signature, p, len);
+    OE_CHECK(oe_memcpy_s(signature, *signatureSize, p, len));
     *signatureSize = len;
 
     result = OE_OK;

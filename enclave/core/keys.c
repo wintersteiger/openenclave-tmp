@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/enclavelibc.h>
+#include <openenclave/internal/raise.h>
 #include <openenclave/internal/sgxtypes.h>
 #include "asmdefs.h"
 #include "report.h"
@@ -20,13 +22,18 @@ static oe_result_t _GetKeyImp(
     const sgx_key_request_t* sgxKeyRequest,
     sgx_key_t* sgxKey)
 {
-    oe_result_t ret;
+    oe_result_t result;
     uint64_t egetkeyResult;
     OE_ALIGNED(SGX_KEY_REQUEST_ALIGNMENT) sgx_key_request_t tmpKeyRequest;
     OE_ALIGNED(SGX_KEY_ALIGNMENT) sgx_key_t tmpSgxKey;
 
     // Copy input parameter into local aligned buffers.
-    oe_memcpy(&tmpKeyRequest, sgxKeyRequest, sizeof(sgx_key_request_t));
+    OE_CHECK(
+        oe_memcpy_s(
+            &tmpKeyRequest,
+            sizeof(sgx_key_request_t),
+            sgxKeyRequest,
+            sizeof(sgx_key_request_t)));
 
     // Execute EGETKEY instruction.
     egetkeyResult = oe_egetkey(&tmpKeyRequest, &tmpSgxKey);
@@ -35,40 +42,43 @@ static oe_result_t _GetKeyImp(
     switch (egetkeyResult)
     {
         case SGX_EGETKEY_SUCCESS:
-            ret = OE_OK;
+            result = OE_OK;
             break;
 
         case SGX_EGETKEY_INVALID_ATTRIBUTE:
-            ret = OE_INVALID_PARAMETER;
+            result = OE_INVALID_PARAMETER;
             break;
 
         case SGX_EGETKEY_INVALID_CPUSVN:
-            ret = OE_INVALID_CPUSVN;
+            result = OE_INVALID_CPUSVN;
             break;
 
         case SGX_EGETKEY_INVALID_ISVSVN:
-            ret = OE_INVALID_ISVSVN;
+            result = OE_INVALID_ISVSVN;
             break;
 
         case SGX_EGETKEY_INVALID_KEYNAME:
-            ret = OE_INVALID_KEYNAME;
+            result = OE_INVALID_KEYNAME;
             break;
 
         default:
-            ret = OE_UNEXPECTED;
+            result = OE_UNEXPECTED;
             break;
     }
 
     // Copy the request key to output buffer, and clear it from stack.
-    if (ret == OE_OK)
+    if (result == OE_OK)
     {
         // The sgx key is the secret, it should not be left on stack. Clean it
         // up to avoid leak by incident.
-        oe_memcpy(sgxKey, &tmpSgxKey, sizeof(sgx_key_t));
+        OE_CHECK(
+            oe_memcpy_s(
+                sgxKey, sizeof(sgx_key_t), &tmpSgxKey, sizeof(sgx_key_t)));
         oe_memset(&tmpSgxKey, 0, sizeof(sgx_key_t));
     }
 
-    return ret;
+done:
+    return result;
 }
 
 oe_result_t oe_get_key(
@@ -166,26 +176,30 @@ static oe_result_t _GetDefaultKeyRequestAttributes(
 {
     sgx_report_t sgxReport = {{{0}}};
 
-    oe_result_t ret;
+    oe_result_t result;
 
     // Get a local report of current enclave.
-    ret = sgx_create_report(NULL, 0, NULL, 0, &sgxReport);
+    result = sgx_create_report(NULL, 0, NULL, 0, &sgxReport);
 
-    if (ret != OE_OK)
+    if (result != OE_OK)
     {
-        return ret;
+        return result;
     }
 
     // Set key request attributes(isv svn, cpu svn, and attribute masks)
     sgxKeyRequest->isv_svn = sgxReport.body.isvsvn;
-    oe_memcpy(
-        &sgxKeyRequest->cpu_svn,
-        sgxReport.body.cpusvn,
-        OE_FIELD_SIZE(sgx_key_request_t, cpu_svn));
+    OE_CHECK(
+        oe_memcpy_s(
+            &sgxKeyRequest->cpu_svn,
+            sizeof(sgxKeyRequest->cpu_svn),
+            sgxReport.body.cpusvn,
+            OE_FIELD_SIZE(sgx_key_request_t, cpu_svn)));
     sgxKeyRequest->attribute_mask.flags = OE_SEALKEY_DEFAULT_FLAGSMASK;
     sgxKeyRequest->attribute_mask.xfrm = OE_SEALKEY_DEFAULT_XFRMMASK;
     sgxKeyRequest->misc_attribute_mask = OE_SEALKEY_DEFAULT_MISCMASK;
-    return OE_OK;
+
+done:
+    return result;
 }
 
 oe_result_t oe_get_seal_key_by_policy(
@@ -195,7 +209,7 @@ oe_result_t oe_get_seal_key_by_policy(
     uint8_t* keyInfo,
     size_t* keyInfoSize)
 {
-    oe_result_t ret;
+    oe_result_t result;
     sgx_key_request_t sgxKeyRequest = {0};
 
     // Check parameters.
@@ -219,8 +233,8 @@ oe_result_t oe_get_seal_key_by_policy(
     }
 
     // Get default key request attributes.
-    ret = _GetDefaultKeyRequestAttributes(&sgxKeyRequest);
-    if (ret != OE_OK)
+    result = _GetDefaultKeyRequestAttributes(&sgxKeyRequest);
+    if (result != OE_OK)
     {
         return OE_UNEXPECTED;
     }
@@ -242,22 +256,28 @@ oe_result_t oe_get_seal_key_by_policy(
     }
 
     // Get the seal key.
-    ret = oe_get_key(&sgxKeyRequest, (sgx_key_t*)keyBuffer);
-    if (ret == OE_OK)
+    result = oe_get_key(&sgxKeyRequest, (sgx_key_t*)keyBuffer);
+    if (result == OE_OK)
     {
         *keyBufferSize = sizeof(sgx_key_t);
 
         if (keyInfo != NULL)
         {
-            oe_memcpy(keyInfo, &sgxKeyRequest, sizeof(sgx_key_request_t));
+            OE_CHECK(
+                oe_memcpy_s(
+                    keyInfo,
+                    *keyInfoSize,
+                    &sgxKeyRequest,
+                    sizeof(sgx_key_request_t)));
             *keyInfoSize = sizeof(sgx_key_request_t);
         }
     }
     else
     {
         // oe_get_key should not fail unless we set the key request wrong.
-        ret = OE_UNEXPECTED;
+        result = OE_UNEXPECTED;
     }
 
-    return ret;
+done:
+    return result;
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "key.h"
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/internal/raise.h>
 #include <openssl/bio.h>
 #include <openssl/evp.h>
@@ -199,7 +200,7 @@ oe_result_t oe_private_key_write_pem(
         }
 
         /* Copy result to output buffer */
-        memcpy(data, mem->data, mem->length);
+        OE_CHECK(oe_memcpy_s(data, *size, mem->data, mem->length));
         *size = mem->length;
     }
 
@@ -259,7 +260,7 @@ oe_result_t oe_public_key_write_pem(
         }
 
         /* Copy result to output buffer */
-        memcpy(data, mem->data, mem->length);
+        OE_CHECK(oe_memcpy_s(data, *size, mem->data, mem->length));
         *size = mem->length;
     }
 

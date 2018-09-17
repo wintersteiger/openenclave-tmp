@@ -3,6 +3,7 @@
 
 #define USE_DL_PREFIX
 #include "debugmalloc.h"
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/backtrace.h>
 #include <openenclave/internal/backtrace.h>
@@ -376,9 +377,9 @@ void* oe_debug_realloc(void* ptr, size_t size)
             return NULL;
 
         if (size > header->size)
-            oe_memcpy(new_ptr, ptr, header->size);
+            oe_memcpy_s(new_ptr, header->size, ptr, header->size);
         else
-            oe_memcpy(new_ptr, ptr, size);
+            oe_memcpy_s(new_ptr, size, ptr, size);
 
         oe_debug_free(ptr);
 

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/backtrace.h>
 #include <openenclave/internal/calls.h>
@@ -158,7 +159,8 @@ char** oe_backtrace_symbols(void* const* buffer, int size)
     if (!(args = oe_host_malloc(sizeof(oe_backtrace_symbols_args_t))))
         goto done;
 
-    oe_memcpy(args->buffer, buffer, sizeof(void*) * size);
+    oe_memcpy_s(
+        args->buffer, sizeof(void*) * size, buffer, sizeof(void*) * size);
     args->size = size;
     args->ret = NULL;
 

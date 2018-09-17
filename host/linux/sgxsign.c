@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 #define OE_TRACE_LEVEL 1
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/host.h>
 #include <openenclave/internal/aesm.h>
 #include <openenclave/internal/elf.h>
 #include <openenclave/internal/error.h>
 #include <openenclave/internal/mem.h>
+#include <openenclave/internal/raise.h>
 #include <openenclave/internal/sgxsign.h>
 #include <openenclave/internal/sgxtypes.h>
 #include <openenclave/internal/str.h>
@@ -253,7 +255,12 @@ static oe_result_t _InitSigstruct(
     memset(sigstruct, 0, sizeof(sgx_sigstruct_t));
 
     /* sgx_sigstruct_t.header */
-    memcpy(sigstruct->header, SGX_SIGSTRUCT_HEADER, sizeof(sigstruct->header));
+    OE_CHECK(
+        oe_memcpy_s(
+            sigstruct->header,
+            sizeof(sigstruct->header),
+            SGX_SIGSTRUCT_HEADER,
+            sizeof(sigstruct->header)));
 
     /* sgx_sigstruct_t.type */
     sigstruct->type = 0;
@@ -265,8 +272,12 @@ static oe_result_t _InitSigstruct(
     OE_TRY(_GetDate(&sigstruct->date));
 
     /* sgx_sigstruct_t.header2 */
-    memcpy(
-        sigstruct->header2, SGX_SIGSTRUCT_HEADER2, sizeof(sigstruct->header2));
+    OE_CHECK(
+        oe_memcpy_s(
+            sigstruct->header2,
+            sizeof(sigstruct->header2),
+            SGX_SIGSTRUCT_HEADER2,
+            sizeof(sigstruct->header2)));
 
     /* sgx_sigstruct_t.swdefined */
     sigstruct->swdefined = 0;
@@ -298,7 +309,12 @@ static oe_result_t _InitSigstruct(
         sigstruct->attributemask.flags &= ~SGX_FLAGS_DEBUG;
 
     /* sgx_sigstruct_t.enclavehash */
-    memcpy(sigstruct->enclavehash, mrenclave, sizeof(sigstruct->enclavehash));
+    OE_CHECK(
+        oe_memcpy_s(
+            sigstruct->enclavehash,
+            sizeof(sigstruct->enclavehash),
+            mrenclave,
+            sizeof(sigstruct->enclavehash)));
 
     /* sgx_sigstruct_t.isvprodid */
     sigstruct->isvprodid = product_id;
@@ -311,11 +327,19 @@ static oe_result_t _InitSigstruct(
         unsigned char buf[sizeof(sgx_sigstruct_t)];
         size_t n = 0;
 
-        memcpy(
-            buf, sgx_sigstruct_header(sigstruct), sgx_sigstruct_header_size());
+        OE_CHECK(
+            oe_memcpy_s(
+                buf,
+                sizeof(buf),
+                sgx_sigstruct_header(sigstruct),
+                sgx_sigstruct_header_size()));
         n += sgx_sigstruct_header_size();
-        memcpy(
-            &buf[n], sgx_sigstruct_body(sigstruct), sgx_sigstruct_body_size());
+        OE_CHECK(
+            oe_memcpy_s(
+                &buf[n],
+                sizeof(buf) - n,
+                sgx_sigstruct_body(sigstruct),
+                sgx_sigstruct_body_size()));
         n += sgx_sigstruct_body_size();
 
         {
@@ -361,6 +385,7 @@ static oe_result_t _InitSigstruct(
     result = OE_OK;
 
 OE_CATCH:
+done:
     return result;
 }
 

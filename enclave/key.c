@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "key.h"
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/internal/enclavelibc.h>
 #include <openenclave/internal/hash.h>
 #include <openenclave/internal/raise.h>
@@ -197,7 +198,7 @@ oe_result_t oe_private_key_write_pem(
             OE_RAISE(OE_BUFFER_TOO_SMALL);
         }
 
-        oe_memcpy(pemData, buf, size);
+        OE_CHECK(oe_memcpy_s(pemData, *pemSize, buf, size));
         *pemSize = size;
     }
 
@@ -280,7 +281,7 @@ oe_result_t oe_public_key_write_pem(
             OE_RAISE(OE_BUFFER_TOO_SMALL);
         }
 
-        oe_memcpy(pemData, buf, size);
+        OE_CHECK(oe_memcpy_s(pemData, *pemSize, buf, size));
         *pemSize = size;
     }
 
@@ -375,7 +376,7 @@ oe_result_t oe_private_key_sign(
     }
 
     /* Copy result to output buffer */
-    oe_memcpy(signature, buffer, bufferSize);
+    OE_CHECK(oe_memcpy_s(signature, *signatureSize, buffer, bufferSize));
     *signatureSize = bufferSize;
 
     result = OE_OK;

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/atexit.h>
 #include <openenclave/internal/calls.h>
@@ -11,6 +12,7 @@
 #include <openenclave/internal/jump.h>
 #include <openenclave/internal/malloc.h>
 #include <openenclave/internal/print.h>
+#include <openenclave/internal/raise.h>
 #include <openenclave/internal/reloc.h>
 #include <openenclave/internal/sgxtypes.h>
 #include <openenclave/internal/thread.h>
@@ -498,7 +500,7 @@ oe_result_t oe_call_host(const char* func, void* argsIn)
             OE_THROW(OE_OUT_OF_MEMORY);
         }
 
-        oe_memcpy(args->func, func, len + 1);
+        OE_CHECK(oe_memcpy_s(args->func, len + 1, func, len + 1));
 
         args->args = argsIn;
         args->result = OE_UNEXPECTED;
@@ -514,6 +516,8 @@ oe_result_t oe_call_host(const char* func, void* argsIn)
 
 OE_CATCH:
     oe_host_free_for_call_host(args);
+    return result;
+done:
     return result;
 }
 

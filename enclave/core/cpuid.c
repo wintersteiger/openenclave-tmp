@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "cpuid.h"
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/calls.h>
 #include <openenclave/internal/cpuid.h>
@@ -29,8 +30,10 @@ void oe_initialize_cpuid(uint64_t argIn)
         if (!(args->cpuidTable[1][OE_CPUID_RCX] & OE_CPUID_AESNI_FEATURE))
             oe_abort();
 
-        oe_memcpy(
+        oe_memcpy_s(
             _oe_cpuid_table,
+            OE_CPUID_LEAF_COUNT * OE_CPUID_REG_COUNT *
+                sizeof(_oe_cpuid_table[0][0]),
             args->cpuidTable,
             OE_CPUID_LEAF_COUNT * OE_CPUID_REG_COUNT *
                 sizeof(_oe_cpuid_table[0][0]));

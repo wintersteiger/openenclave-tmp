@@ -3,10 +3,12 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/bits/safemath.h>
 #include <openenclave/internal/elf.h>
 #include <openenclave/internal/load.h>
 #include <openenclave/internal/mem.h>
+#include <openenclave/internal/raise.h>
 #include <openenclave/internal/utils.h>
 #include <stdio.h>
 #include <string.h>
@@ -1667,9 +1669,9 @@ done:
 
 int Elf64_RemoveSection(Elf64* elf, const char* name)
 {
-    int rc = -1;
     size_t secIndex;
     Elf64_Shdr* shdr;
+    oe_result_t result = OE_UNEXPECTED;
 
     /* Reject invalid parameters */
     if (!_IsValidElf64(elf) || !name)
@@ -1696,7 +1698,7 @@ int Elf64_RemoveSection(Elf64* elf, const char* name)
         const uint8_t* end = (const uint8_t*)elf->data + elf->size;
 
         /* Remove section from the memory image */
-        memmove(first, last, end - last);
+        OE_CHECK(oe_memmove_s(first, end - first, last, end - last));
 
         /* Adjust the size of the memory image */
         elf->size -= shdr->sh_size;
@@ -1761,7 +1763,12 @@ int Elf64_RemoveSection(Elf64* elf, const char* name)
         const Elf64_Shdr* end = first + _GetHeader(elf)->e_shnum;
 
         /* Remove the header */
-        memmove(first, last, (end - last) * sizeof(Elf64_Shdr));
+        OE_CHECK(
+            oe_memmove_s(
+                first,
+                (end - first) * sizeof(Elf64_Shdr),
+                last,
+                (end - last) * sizeof(Elf64_Shdr)));
 
         /* Adjust the number of headers */
         _GetHeader(elf)->e_shnum--;
@@ -1770,15 +1777,14 @@ int Elf64_RemoveSection(Elf64* elf, const char* name)
         elf->size -= sizeof(sizeof(Elf64_Shdr));
     }
 
-    rc = 0;
-
+    result = OE_OK;
 done:
-    return rc;
+    return result;
 }
 
 int Elf64_LoadRelocations(const Elf64* elf, void** dataOut, size_t* sizeOut)
 {
-    int rc = -1;
+    oe_result_t result = OE_UNEXPECTED;
     size_t index;
     Elf64_Shdr* shdr;
     uint8_t* data;
@@ -1801,7 +1807,7 @@ int Elf64_LoadRelocations(const Elf64* elf, void** dataOut, size_t* sizeOut)
     {
         *dataOut = NULL;
         *sizeOut = 0;
-        rc = 0;
+        result = OE_OK;
         goto done;
     }
 
@@ -1848,13 +1854,13 @@ int Elf64_LoadRelocations(const Elf64* elf, void** dataOut, size_t* sizeOut)
         }
 
         memset(*dataOut, 0, *sizeOut);
-        memcpy(*dataOut, data, size);
+        OE_CHECK(oe_memcpy_s(*dataOut, *sizeOut, data, size));
     }
 
-    rc = 0;
+    result = 0;
 
 done:
-    return rc;
+    return result;
 }
 
 const char* Elf64_GetFunctionName(const Elf64* elf, Elf64_Addr addr)

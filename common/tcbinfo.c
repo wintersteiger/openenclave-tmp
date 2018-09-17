@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 #include "tcbinfo.h"
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/internal/hexdump.h>
 #include <openenclave/internal/raise.h>
 #include <openenclave/internal/trace.h>
@@ -201,7 +202,7 @@ static void _trace_json_string(const uint8_t* str, size_t str_length)
 {
 #if (OE_TRACE_LEVEL >= OE_TRACE_LEVEL_INFO)
     char buffer[str_length + 1];
-    memcpy(buffer, str, str_length);
+    oe_memcpy_s(buffer, str_length, str, str_length);
     buffer[str_length] = 0;
     OE_TRACE_INFO("value = %s\n", buffer);
 #endif

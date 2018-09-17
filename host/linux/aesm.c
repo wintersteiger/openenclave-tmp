@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/host.h>
 #include <openenclave/internal/aesm.h>
 #include <openenclave/internal/hexdump.h>
 #include <openenclave/internal/mem.h>
+#include <openenclave/internal/raise.h>
 #include <openenclave/internal/trace.h>
 #include <openenclave/internal/utils.h>
 #include <sys/socket.h>
@@ -123,7 +125,7 @@ static ssize_t _UnpackTag(const mem_t* buf, size_t pos, uint8_t* tag)
     if (pos + size > mem_size(buf))
         return -1;
 
-    memcpy(tag, mem_ptr_at(buf, pos), size);
+    oe_memcpy_s(tag, sizeof(tag), mem_ptr_at(buf, pos), size);
     return pos + size;
 }
 
@@ -258,13 +260,14 @@ static oe_result_t _UnpackLengthDelimited(
     if (size > dataSize)
         OE_THROW(OE_FAILURE);
 
-    memcpy(data, mem_ptr_at(buf, *pos), size);
+    OE_CHECK(oe_memcpy_s(data, dataSize, mem_ptr_at(buf, *pos), size));
 
     *pos += size;
 
     result = OE_OK;
 
 OE_CATCH:
+done:
     return result;
 }
 

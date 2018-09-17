@@ -18,6 +18,7 @@
 #endif
 
 #include <assert.h>
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/bits/safemath.h>
 #include <openenclave/internal/aesm.h>
 #include <openenclave/internal/raise.h>
@@ -315,7 +316,12 @@ static oe_result_t _GetSigStruct(
     else
     {
         /* Otherwise, treat enclave as signed and use its sigstruct */
-        memcpy(sigstruct, properties->sigstruct, sizeof(sgx_sigstruct_t));
+        OE_CHECK(
+            oe_memcpy_s(
+                sigstruct,
+                sizeof(sgx_sigstruct_t),
+                properties->sigstruct,
+                sizeof(sgx_sigstruct_t)));
     }
 
     result = OE_OK;
@@ -572,7 +578,9 @@ oe_result_t oe_sgx_load_enclave_data(
         }
 
         /* Copy page contents onto memory-mapped region */
-        memcpy((uint8_t*)addr, (uint8_t*)src, OE_PAGE_SIZE);
+        OE_CHECK(
+            oe_memcpy_s(
+                (uint8_t*)addr, OE_PAGE_SIZE, (uint8_t*)src, OE_PAGE_SIZE));
 
         /* Set page access permissions */
         {
@@ -718,8 +726,18 @@ oe_result_t oe_sgx_initialize_enclave(
         ENCLAVE_INIT_INFO_SGX info;
 
         memset(&info, 0, sizeof(info));
-        memcpy(&info.SigStruct, (void*)&sigstruct, sizeof(info.SigStruct));
-        memcpy(&info.EInitToken, (void*)&launchToken, sizeof(info.EInitToken));
+        OE_CHECK(
+            oe_memcpy_s(
+                &info.SigStruct,
+                sizeof(info.SigStruct),
+                (void*)&sigstruct,
+                sizeof(info.SigStruct)));
+        OE_CHECK(
+            oe_memcpy_s(
+                &info.EInitToken,
+                sizeof(info.EInitToken),
+                (void*)&launchToken,
+                sizeof(info.EInitToken)));
 
         if (!InitializeEnclave(
                 GetCurrentProcess(),

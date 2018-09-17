@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include <openenclave/bits/defs.h>
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/internal/raise.h>
 #include <openenclave/internal/report.h>
 #include <openenclave/internal/sgxtypes.h>
@@ -32,8 +33,9 @@ static void _oe_parse_sgx_report_body(
     OE_STATIC_ASSERT(
         sizeof(parsedReport->identity.unique_id) >=
         sizeof(reportBody->mrenclave));
-    memcpy(
+    oe_memcpy_s(
         parsedReport->identity.unique_id,
+        sizeof(parsedReport->identity.unique_id),
         reportBody->mrenclave,
         sizeof(reportBody->mrenclave));
 
@@ -41,8 +43,9 @@ static void _oe_parse_sgx_report_body(
         sizeof(parsedReport->identity.signer_id) >=
         sizeof(reportBody->mrsigner));
 
-    memcpy(
+    oe_memcpy_s(
         parsedReport->identity.signer_id,
+        sizeof(parsedReport->identity.signer_id),
         reportBody->mrsigner,
         sizeof(reportBody->mrsigner));
 

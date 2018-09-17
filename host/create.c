@@ -13,6 +13,7 @@
 
 #include <assert.h>
 #include <openenclave/bits/defs.h>
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/bits/safemath.h>
 #include <openenclave/host.h>
 #include <openenclave/internal/calls.h>
@@ -21,6 +22,7 @@
 #include <openenclave/internal/load.h>
 #include <openenclave/internal/mem.h>
 #include <openenclave/internal/properties.h>
+#include <openenclave/internal/raise.h>
 #include <openenclave/internal/raise.h>
 #include <openenclave/internal/sgxcreate.h>
 #include <openenclave/internal/sgxtypes.h>
@@ -1033,7 +1035,12 @@ oe_result_t oe_sgx_load_properties(
             goto done;
         }
 
-        memcpy(properties, header, sizeof(oe_sgx_enclave_properties_t));
+        OE_CHECK(
+            oe_memcpy_s(
+                properties,
+                sizeof(oe_sgx_enclave_properties_t),
+                header,
+                sizeof(oe_sgx_enclave_properties_t)));
     }
 
     result = OE_OK;
@@ -1079,7 +1086,12 @@ oe_result_t oe_sgx_update_enclave_properties(
             goto done;
         }
 
-        memcpy(header, properties, sizeof(oe_sgx_enclave_properties_t));
+        OE_CHECK(
+            oe_memcpy_s(
+                header,
+                sizeof(oe_sgx_enclave_properties_t),
+                properties,
+                sizeof(oe_sgx_enclave_properties_t)));
     }
 
     result = OE_OK;

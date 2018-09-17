@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <openenclave/bits/result.h>
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/internal/asn1.h>
 #include <openenclave/internal/cert.h>
 #include <openenclave/internal/hexdump.h>
@@ -39,7 +40,8 @@ static void _SetErr(oe_verify_cert_error_t* error, const char* str)
     if (error)
     {
         error->buf[0] = '\0';
-        strncat(error->buf, str, sizeof(error->buf) - 1);
+        oe_strncat_s(
+            error->buf, sizeof(error->buf), str, sizeof(error->buf) - 1);
     }
 }
 
@@ -932,7 +934,7 @@ oe_result_t oe_cert_find_extension(
 
             if (data)
             {
-                memcpy(data, str->data, str->length);
+                OE_CHECK(oe_memcpy_s(data, *size, str->data, str->length));
                 *size = str->length;
                 result = OE_OK;
                 goto done;

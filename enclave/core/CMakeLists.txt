@@ -33,6 +33,7 @@ add_library(oecore STATIC
     td.c
     thread.c
     time.c
+    ../../common/safecrt.c
     enter.S
     exit.S
     getkey.S

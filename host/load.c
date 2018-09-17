@@ -3,9 +3,11 @@
 
 #define OE_TRACE_LEVEL 1
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/host.h>
 #include <openenclave/internal/elf.h>
 #include <openenclave/internal/load.h>
+#include <openenclave/internal/raise.h>
 #include <openenclave/internal/trace.h>
 #include <openenclave/internal/utils.h>
 #include <stdlib.h>
@@ -150,7 +152,12 @@ oe_result_t __oe_load_segments(
             if (!(seg.filedata = malloc(seg.filesz)))
                 OE_THROW(OE_OUT_OF_MEMORY);
 
-            memcpy(seg.filedata, Elf64_GetSegment(&elf, i), seg.filesz);
+            OE_CHECK(
+                oe_memcpy_s(
+                    seg.filedata,
+                    seg.filesz,
+                    Elf64_GetSegment(&elf, i),
+                    seg.filesz));
 
             /* Zero out the .oeinfo section if within this segment */
             if (oeinfo_size && (oeinfo_offset >= seg.offset) &&
@@ -183,6 +190,7 @@ oe_result_t __oe_load_segments(
     result = OE_OK;
 
 OE_CATCH:
+done:
 
     if (result != OE_OK)
     {
@@ -307,7 +315,9 @@ oe_result_t __oe_combine_segments(
     for (i = 0; i < nsegments; i++)
     {
         const oe_segment_t* seg = &segments[i];
-        memcpy(data + seg->vaddr, seg->filedata, seg->filesz);
+        OE_CHECK(
+            oe_memcpy_s(
+                data + seg->vaddr, seg->filesz, seg->filedata, seg->filesz));
     }
 
     *pages = (oe_page_t*)data;
@@ -316,7 +326,7 @@ oe_result_t __oe_combine_segments(
     result = OE_OK;
 
 OE_CATCH:
-
+done:
     if (result != OE_OK)
         oe_memalign_free(data);
 

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/calls.h>
 #include <openenclave/internal/enclavelibc.h>
@@ -81,7 +82,7 @@ char* oe_host_strndup(const char* str, size_t n)
     if (!(p = oe_host_malloc(len + 1)))
         return NULL;
 
-    oe_memcpy(p, str, len);
+    oe_memcpy_s(p, len, str, len);
     p[len] = '\0';
 
     return p;
@@ -110,7 +111,7 @@ int oe_host_write(int device, const char* str, size_t len)
     /* Initialize the arguments */
     args->device = device;
     args->str = (char*)(args + 1);
-    oe_memcpy(args->str, str, len);
+    oe_memcpy_s(args->str, len, str, len);
     args->str[len] = '\0';
 
     /* Perform OCALL */

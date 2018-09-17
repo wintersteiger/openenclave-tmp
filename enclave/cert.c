@@ -7,6 +7,7 @@
 #include <mbedtls/pem.h>
 #include <mbedtls/platform.h>
 #include <mbedtls/x509_crt.h>
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/enclave.h>
 #include <openenclave/internal/atomic.h>
 #include <openenclave/internal/cert.h>
@@ -314,7 +315,7 @@ static bool _FindExtension(
 
         /* Copy to caller's buffer */
         if (args->data)
-            oe_memcpy(args->data, data, *args->size);
+            oe_memcpy_s(args->data, *args->size, data, *args->size);
 
         *args->size = size;
         args->result = OE_OK;
@@ -634,7 +635,12 @@ oe_result_t oe_cert_verify(
             if (!(p = oe_malloc(sizeof(mbedtls_x509_crl))))
                 OE_RAISE(OE_OUT_OF_MEMORY);
 
-            oe_memcpy(p, crl_impl->crl, sizeof(mbedtls_x509_crl));
+            OE_CHECK(
+                oe_memcpy_s(
+                    p,
+                    sizeof(mbedtls_x509_crl),
+                    crl_impl->crl,
+                    sizeof(mbedtls_x509_crl)));
 
             /* Append to the linked-list */
             {

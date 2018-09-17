@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <openenclave/bits/safecrt.h>
 #include <openenclave/internal/asn1.h>
 #include <openenclave/internal/cert.h>
 #include <openenclave/internal/raise.h>
@@ -72,7 +73,7 @@ static void _append(
         if (s)
         {
             // Copy 'm' bytes from string 's'.
-            memcpy(ptr, s, m);
+            oe_memcpy_s(ptr, m, s, m);
         }
         else
         {
