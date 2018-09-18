@@ -2866,6 +2866,16 @@
 // developers should move to SHA256
 #define MBEDTLS_TLS_DEFAULT_ALLOW_SHA1_IN_KEY_EXCHANGE
 
+/**
+ * \def MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED
+ *
+ * Enable the verified implementations of crypto primitives
+ * from Project Everest (currently only x25519).
+ *
+ */
+#define MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED
+#define MBEDTLS_EDDSA_C
+
 /* \} name SECTION: Customisation configuration options */
 
 /* Target and application specific configurations */

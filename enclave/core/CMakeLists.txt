@@ -56,6 +56,12 @@ add_target_compile_flags(oecore PUBLIC "C;CXX"
     -fvisibility=hidden
     )
 
+if(CMAKE_COMPILER_IS_GNU)
+add_target_compile_flags(oecore PUBLIC "C;CXX"
+    -Wno-frame-address
+)
+endif()
+
 add_target_compile_flags(oecore PUBLIC CXX
     -nostdinc++
     )

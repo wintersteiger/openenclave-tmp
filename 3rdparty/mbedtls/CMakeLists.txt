@@ -5,6 +5,10 @@
 
 set(MBEDTLS_WRAP_CFLAGS "-nostdinc -I${OE_INCDIR}/openenclave/libc -fPIC -fno-builtin-udivti3 ${SPECTRE_MITIGATION_FLAGS}")
 
+if(CMAKE_COMPILER_IS_GNU)
+set(MBEDTLS_WRAP_CFLAGS "${MBEDTLS_WRAP_CFLAGS} -D_FORTIFY_SOURCE=0")
+endif()
+
 string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "DEBUG")
@@ -33,12 +37,15 @@ ExternalProject_Add(mbedtls-wrap
     # copy headers/libs
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory
         <SOURCE_DIR>/include/mbedtls ${OE_INCDIR}/openenclave/mbedtls
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        <SOURCE_DIR>/include/everest ${OE_INCDIR}/openenclave/everest
         COMMAND ${CMAKE_COMMAND} -E copy
         <BINARY_DIR>/library/libmbedx509.a ${OE_LIBDIR}/openenclave/enclave/
         <BINARY_DIR>/library/libmbedtls.a ${OE_LIBDIR}/openenclave/enclave/
         <BINARY_DIR>/library/libmbedcrypto.a ${OE_LIBDIR}/openenclave/enclave/
     )
 install (DIRECTORY ${OE_INCDIR}/openenclave/mbedtls DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openenclave/3rdparty)
+install (DIRECTORY ${OE_INCDIR}/openenclave/everest DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openenclave/3rdparty)
 install (FILES ${OE_LIBDIR}/openenclave/enclave/libmbedtls.a DESTINATION ${CMAKE_INSTALL_LIBDIR}/openenclave/enclave)
 install (FILES ${OE_LIBDIR}/openenclave/enclave/libmbedx509.a DESTINATION ${CMAKE_INSTALL_LIBDIR}/openenclave/enclave)
 install (FILES ${OE_LIBDIR}/openenclave/enclave/libmbedcrypto.a DESTINATION ${CMAKE_INSTALL_LIBDIR}/openenclave/enclave)
