@@ -2875,6 +2875,7 @@
  */
 #define MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED
 #define MBEDTLS_EDDSA_C
+#define MBEDTLS_ECDH_VARIANT_EVEREST_AES_GCM
 
 /* \} name SECTION: Customisation configuration options */
 
