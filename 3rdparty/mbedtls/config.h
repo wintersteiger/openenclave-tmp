@@ -2876,6 +2876,10 @@
 #include YOTTA_CFG_MBEDTLS_TARGET_CONFIG_FILE
 #endif
 
+#define MBEDTLS_EDDSA_C
+#define MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED
+#define MBEDTLS_ECDH_VARIANT_EVEREST_AES_GCM
+
 /*
  * Allow user to override any previous default.
  *

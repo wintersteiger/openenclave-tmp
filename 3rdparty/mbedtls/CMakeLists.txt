@@ -81,6 +81,7 @@ add_dependencies(mbedcrypto mbedtls-wrap)
 
 target_include_directories(mbedcrypto INTERFACE
   $<BUILD_INTERFACE:${SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${SOURCE_DIR}/3rdparty/everest/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/openenclave/3rdparty>)
 
 target_link_libraries(mbedcrypto INTERFACE
@@ -98,6 +99,9 @@ target_link_libraries(mbedcrypto INTERFACE
 install(TARGETS mbedcrypto EXPORT openenclave-targets)
 
 install(DIRECTORY ${SOURCE_DIR}/include/mbedtls
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openenclave/3rdparty)
+
+install(DIRECTORY ${SOURCE_DIR}/3rdparty/everest/include/everest
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openenclave/3rdparty)
 
 # NOTE: Because these libraries are `IMPORTED`, it is not possible

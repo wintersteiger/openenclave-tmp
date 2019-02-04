@@ -22,12 +22,20 @@ function(add_mbed_test_enclave NAME)
 
   add_custom_command(
     OUTPUT test_suite_${NAME}.c
-    COMMAND ${BASH} -c "perl ${MBEDTLS_TESTS_DIR}/scripts/generate_code.pl ${MBEDTLS_TESTS_DIR}/suites test_suite_${suite_name} test_suite_${data_name}"
+    COMMAND ${BASH} -c "python ${MBEDTLS_TESTS_DIR}/scripts/generate_test_code.py \
+                            -s ${MBEDTLS_TESTS_DIR}/suites \
+                            -f ${MBEDTLS_TESTS_DIR}/suites/test_suite_${suite_name}.function \
+                            -d ${MBEDTLS_TESTS_DIR}/suites/test_suite_${data_name}.data \
+                            -p ${MBEDTLS_TESTS_DIR}/suites/host_test.function \
+                            --helpers-file ${MBEDTLS_TESTS_DIR}/suites/helpers.function \
+                            -t ${MBEDTLS_TESTS_DIR}/suites/main_test.function \
+                            -o ."
     DEPENDS
     mbedcrypto
-    ${MBEDTLS_TESTS_DIR}/scripts/generate_code.pl
+    ${MBEDTLS_TESTS_DIR}/scripts/generate_test_code.py
     ${MBEDTLS_TESTS_DIR}/suites/helpers.function
     ${MBEDTLS_TESTS_DIR}/suites/main_test.function
+    ${MBEDTLS_TESTS_DIR}/suites/host_test.function
     ${MBEDTLS_TESTS_DIR}/suites/test_suite_${suite_name}.function
     ${MBEDTLS_TESTS_DIR}/suites/test_suite_${data_name}.data)
 
@@ -68,7 +76,7 @@ function(add_mbed_test_enclave NAME)
 
   # Propagate cpmpiler variables
   set(CMAKE_C_COMPILE_OBJECT "${CMAKE_C_COMPILE_OBJECT}" PARENT_SCOPE)
-  set(CMAKE_CXX_COMPILE_OBJECT "${CMAKE_CXX_COMPILE_OBJECT}" PARENT_SCOPE)  
+  set(CMAKE_CXX_COMPILE_OBJECT "${CMAKE_CXX_COMPILE_OBJECT}" PARENT_SCOPE)
 endfunction()
 
 # This is simpler version of the above for the single "selftest" test
